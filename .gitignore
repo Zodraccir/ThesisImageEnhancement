@@ -1,6 +1,7 @@
 .idea
 models/image*
 image_enhancement/__pycache__/*
+image_enhancement/envs/__pycache__/image_enhancement_env.cpython-38.pyc
 plots/DDQN*
 image_enhancement/envs/__pycache__
 FinalImage/
