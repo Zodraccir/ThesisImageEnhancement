@@ -176,9 +176,13 @@ class ImageEnhancementEnv(gym.Env):
 
 		#rawImage=T.functional.resize(raw,size=[size_image_training])
 		#expImage=T.functional.resize(target,size=[size_image_training])
+		convert_tensor = T.Compose([
+			T.Resize(224),
+			T.ToTensor(),
+		])
 
-		rawImage=raw
-		expImage=target
+		rawImage=convert_tensor(raw)
+		expImage=convert_tensor(target)
 
 		self.state=rawImage.detach().clone()
 		self.target = expImage.detach().clone()
@@ -187,11 +191,14 @@ class ImageEnhancementEnv(gym.Env):
 
 		#print(self.state.mean(),self.state.std(),self.state.max())
 
+		convert_tensor = T.ToTensor()
 
 		self.startImage = rawImage.detach().clone()
-		self.startImageRaw=raw.detach().clone()
 
-		self.targetRaw=target.detach().clone()
+
+		self.startImageRaw=convert_tensor(raw)
+
+		self.targetRaw=convert_tensor(target)
 
 		self.initial_distance_RAW=calculateDistance(self.startImageRaw,self.targetRaw)
 

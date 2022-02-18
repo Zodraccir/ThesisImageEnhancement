@@ -84,10 +84,7 @@ if __name__ == '__main__':
     #convert_tensor = transforms.Compose
 
 
-    convert_tensor = transforms.Compose([
-        transforms.Resize(224),
-        transforms.ToTensor(),
-    ])
+
     for i in range(n_games):
 
 
@@ -95,11 +92,8 @@ if __name__ == '__main__':
         file=random.choice(img_list)
         #file = img_list[7]
 
-        img_path_raw = Image.open(path_training_image+file)
-        img_path_exp = Image.open(path_expert_image+file)
-
-        raw=convert_tensor(img_path_raw)
-        target=convert_tensor(img_path_exp)
+        raw = Image.open(path_training_image+file)
+        target = Image.open(path_expert_image+file)
 
         observation = env.reset(raw,target)
         state_= observation.detach().clone().to(agent.q_eval.device)
