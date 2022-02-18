@@ -9,7 +9,7 @@ register(
     #timestep_limit=1000,
     reward_threshold=1.0,
     nondeterministic = True,
-    #order_enforce=False,
+    order_enforce=False,
 )
 
 #register(
