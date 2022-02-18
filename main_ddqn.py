@@ -53,7 +53,7 @@ if __name__ == '__main__':
     max_num_step=args.maxNumStep
 
     #lr=0002 RMSprop
-    agent = DDQNAgent(gamma=1, epsilon=1.0, lr=args.learningRate,
+    agent = DDQNAgent(gamma=0.90, epsilon=1.0, lr=args.learningRate,
                      input_dims=(env.observation_space.shape),
                      n_actions=env.action_space.n, mem_size=args.memSize, eps_min=0.10,
                      batch_size=args.batchSize, replace=1000, eps_dec=args.epsdecay,
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     print('start execution, device used: ', agent.q_eval.device,' ,number games to execute: ',n_games,'max num step',max_num_step, 'number action ',agent.n_actions,'learning rate: ',args.learningRate,' epslon decay: ',args.epsdecay , ' batch Size',args.batchSize)
 
 
-    scores, eps_history, steps_array , scores_perc , numbers_actions, final_distances = [], [], [], [], [], []
+    scores, eps_history, steps_array , scores_perc , numbers_actions, final_distances , number_steps = [], [], [], [], [], [], []
     img_list = os.listdir(path_training_image)
 
 
@@ -141,6 +141,7 @@ if __name__ == '__main__':
         scores_perc.append(score_perc)
         eps_history.append(agent.epsilon)
         final_distances.append(final_distance)
+        number_steps.append(env.steps)
 
         #avg_score = np.mean(scores[-100:])
         print('episode: ', i+1,'/',n_games,' Image:', file ,'score: %.1f' % score,
@@ -171,5 +172,5 @@ if __name__ == '__main__':
         for i in range(len(scores)):
 
             writer.writerow(
-                [i, scores[j], scores_perc[j], eps_history[j], steps_array[j], final_distances[j]])
+                [i, scores[j], number_steps[j], scores_perc[j], eps_history[j], steps_array[j], final_distances[j]])
             j = j + 1

@@ -170,9 +170,6 @@ if __name__ == '__main__':
 
 
         #print("ssim", -1+2*(losses.ssim_loss(env.final_image_RAW_batched,env.target_image_RAW_batched,11)))
-
-
-
         #print("psnr ",-losses.psnr_loss(env.final_image_RAW_batched,env.target_image_RAW_batched,1))
 
 
