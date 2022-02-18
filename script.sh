@@ -4,6 +4,10 @@ mkdir resultsAlexNet40k_1e-5_64_0.001
 mkdir resultsAlexNet40k_1e-5_64_0.0005
 mkdir resultsAlexNet40k_1e-5_64_0.00025
 mkdir resultsAlexNet40k_1e-5_64_0.0001
+mkdir models
+mkdir plots
+mkdir plots_custom
+mkdir FinalImage
 
 
 python3 main_ddqn.py -n 40000 -e 1e-5 -b 64 -m 10000 -lr 0.001 > resultsAlexNet40k_1e-5_64_0.001/logTraining40k.dat
