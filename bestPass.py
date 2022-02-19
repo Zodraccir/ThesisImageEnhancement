@@ -61,7 +61,7 @@ if __name__ == '__main__':
 
     scores, eps_history, steps_array, scores_perc, numbers_actions , scores_perc_raw , distances , score_psnr , score_ssim =  [], [], [], [], [], [] , [] , [] , []
 
-    img_list = os.listdir(path_test_image)
+    img_list = os.listdir(path_training_image)
 
     #img_list=os.listdir("rawTest")[24:25]
 
@@ -70,23 +70,16 @@ if __name__ == '__main__':
 
     stats_actions=[0]*env.action_space.n
 
-    convert_tensor = transforms.Compose([
-        transforms.RandomResizedCrop(224),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
 
-    ])
     for i  in img_list:
         done = False
 
 
-        file = i
+        #file = i
+        file=img_list[7]
+        raw = Image.open(path_training_image + file)
+        target = Image.open(path_expert_image + file)
 
-        img_path_raw = Image.open(path_test_image + file)
-        img_path_exp = Image.open(path_expert_image + file)
-
-        raw = convert_tensor(img_path_raw)
-        target = convert_tensor(img_path_exp)
 
         observation = env.reset(raw, target)
 

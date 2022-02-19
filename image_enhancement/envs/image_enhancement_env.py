@@ -46,12 +46,13 @@ class ImageEnhancementEnv(gym.Env):
 		self.finalImage = None
 		self.targetRaw = None
 
-		self.total_reward=0
 		self.initial_distance_RAW=None
 		self.final_distance_RAW=None
 
 		self.target_image_RAW_batched=None
 		self.final_image_RAW_batched=None
+
+		self.rewardFinalState=False
 
 	# print(self.type_distance,type_distance)
 
@@ -69,6 +70,9 @@ class ImageEnhancementEnv(gym.Env):
 		assert self.action_space.contains(action)
 		self.previus_state=self.state.detach().clone()
 		self.steps+=1
+
+
+		#part of reward system part 1
 		#self.state=performAction(action,self.state)
 		distances=[]
 		#print(self.initial_distance)
@@ -83,89 +87,56 @@ class ImageEnhancementEnv(gym.Env):
 		min = distances[-1]  # min value in sense of maximum distance from targer
 		#print(max,min)
 		#print(distances)
+
+
+
 		self.state=select_fine(self.state,action)
 		distance_state = calculateDistance(self.target,self.state)
+		upgrade = (1 - (distance_state / self.initial_distance))
 		reward=0
 		#print(min, max)
 		#print("dist-stat",distance_state)
 		done = 0
-		if distance_state>distance_previus_state:
-			#print("lesser then previus")
-			reward=-1
-			done=1
-		elif distance_state<distance_previus_state:
-			#print("more then previus")
-			#reward=1-((distance_state-max)/(distance_previus_state-max)) -1 #if reward is 0, best action
-			reward=1/(self.initial_distance / (distance_previus_state-distance_state))
-		elif distance_state==distance_previus_state:
-			#print("equal")
-			reward=0
-		upgrade = (1 - (distance_state / self.initial_distance))
-		#print(self.initial_distance, distance_state, distance_previus_state,(distance_previus_state-distance_state),"reward", reward, upgrade)
-		if(upgrade<=0.8):
-			upgrade=-1
-		if action==28:
-			done=1
-			reward=(upgrade-0.8)/(1-0.8)
-		#print(action, reward)
-		#print(upgrade,reward,done,distance_previus_state,distance_state,max)
-		'''
-		if(reward>=0.8):
-			reward=1
-		elif(reward<0.8 and reward > -0.1):
-			reward=0
-		elif(reward <= 0.1):
-			reward=-1
-		#print("rewad!!!",reward)
-		'''
-		#reward = distance_previus_state-distance_state
-		#threshold=0.00001
-		#distance_from_previus=calculateDistance(self.previus_state,self.state)
-    	#if(reward>0):
-
-			#splits=distance_previus_state/10
-
-			#for i in range(1,10):
-				#if(reward<i*splits):
-					#reward=0.1*i
-					#break
-
-			#print(reward)
-
-		#elif(reward<0):
-			#reward=-1
 
 
 
-		'''
 
-		if abs(distance_state.item())<threshold:
-			done=1
-			print("Passsaggi effettuati correttamente")
+		if(self.rewardFinalState==False):
+		#reward system part 1
+			#print('we are on first stage')
+			if distance_state>distance_previus_state:
+				#print("lesser then previus")
+				reward=-1
+				done=1
+			elif distance_state<distance_previus_state:
+				#print("more then previus")
+				#reward=1-((distance_state-max)/(distance_previus_state-max)) -1 #if reward is 0, best action
+				reward=1/(self.initial_distance / (distance_previus_state-distance_state))
+			elif distance_state==distance_previus_state:
+				#print("equal")
+				reward=0
+			#print(self.initial_distance, distance_state, distance_previus_state,(distance_previus_state-distance_state),"reward", reward, upgrade)
+			if(upgrade<=0.80):
+				upgrade=0.80
+			if action==28:
+				done=1
+				reward= 2*(  (upgrade-0.80)/(1-0.80)) -1
 
-		if distance_state.item()>(self.initial_distance+0.2*self.initial_distance):
-			done=11
-			#print("Limite sforato")
-		if self.steps>15:
-			done=11
-			#print("Max operazioni effettuate")
-		'''
-		#print(reward_state.item())
-		#print(reward)
-
-		#process reward, if
+		elif (self.rewardFinalState == True):
+			#print('we are on second stage')
+			#reward system part 2
+			if distance_state>distance_previus_state:
+				#print("lesser then previus")
+				reward=-1
+				done=1
+			if (upgrade <= 0.4):
+				upgrade = 0.4
+			#print(upgrade)
+			if action == 28:
+				done = 1
+				reward =2*( (upgrade-0.40)/(1-0.40) )-1
 
 		self.finalImage=self.state.clone()
-
-		'''if self.steps > 20:
-			done = 11'''
-		# print("Max operazioni effettuate")
-		self.total_reward=self.total_reward+reward
-
-		#if(reward<-0.5):
-			#print("passaggio sbagliato")
-			#done=1
-
 		return self.state.clone(), reward, done, distance_state
 
 
@@ -205,6 +176,9 @@ class ImageEnhancementEnv(gym.Env):
 		self.target_image_RAW_batched=self.targetRaw.detach().clone().unsqueeze(0)
 
 		return self.state
+
+	def changeReward(self):
+		self.rewardFinalState=True
 
 	def render(self):
 		plt.imshow(self.state.permute(1,2,0))

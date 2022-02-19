@@ -15,6 +15,7 @@ from PIL import Image
 path_training_image="RawTraining/"
 path_expert_image="ExpC/"
 path_test_image="RawTest/"
+eps_min=0.10
 
 
 #per training 20k, arrivare a 17k episodi con epslon decaduto= 37e-7
@@ -55,7 +56,7 @@ if __name__ == '__main__':
     #lr=0002 RMSprop
     agent = DDQNAgent(gamma=1, epsilon=1.0, lr=args.learningRate,
                      input_dims=(env.observation_space.shape),
-                     n_actions=env.action_space.n, mem_size=args.memSize, eps_min=0.10,
+                     n_actions=env.action_space.n, mem_size=args.memSize, eps_min=eps_min,
                      batch_size=args.batchSize, replace=1000, eps_dec=args.epsdecay,
                      chkpt_dir='models/', algo='DDQNAgent',
                      env_name='image_enhancement-v0')
@@ -84,13 +85,17 @@ if __name__ == '__main__':
     #convert_tensor = transforms.Compose
 
 
+    finished=False
+    retrain=False
 
-    for i in range(n_games):
-
+    i=0
+    j=0
+    while not finished:
+        i = i + 1
 
         #print(".......... EPISODE "+str(i)+" --------------")
-        file=random.choice(img_list)
-        #file = img_list[7]
+        #file=random.choice(img_list)
+        file = img_list[7]
 
         raw = Image.open(path_training_image+file)
         target = Image.open(path_expert_image+file)
@@ -109,19 +114,20 @@ if __name__ == '__main__':
         while not done:
             if(env.steps>max_num_step):
                 break
-            action = agent.choose_action(state_.unsqueeze_(0))
+            action = agent.choose_action(state_.unsqueeze_(0),retrain)
+            if(retrain):
+                stop=6 * ((env.initial_distance - 0.1) / (2.4 - 0.1)) + 6
+                if(env.steps>stop):
+                    action=28
             #print("State_ mean: ",str(state_.mean())+ " std ",str(state_.std()) + "action done: ",action)
             observation_, reward, done, info = env.step(action)
 
-            #print("State +1 mean: ",str(observation_.mean())+ " std ",str(observation_.std()) + "reward done: ",reward)
+            print("State +1 mean: ",str(observation_.mean())+ " std ",str(observation_.std()) + "reward done: ",reward,"action taken", action)
             score += reward
 
+            agent.store_transition(state_.cpu(), action,reward, observation_, int(done))
+            agent.learn()
 
-
-            if learn_:
-                agent.store_transition(state_.cpu(), action,
-                                     reward, observation_, int(done))
-                agent.learn()
             state_ = observation_.detach().clone()
 
             n_actions+=1
@@ -151,6 +157,16 @@ if __name__ == '__main__':
 
         #if load_checkpoint and n_steps >= 18000:
             #break
+
+        if(agent.epsilon==eps_min):
+            if retrain==False:
+                retrain=True
+                agent.epsilon=1.0
+                env.changeReward()
+            elif retrain==True:
+                j=j+1
+                if(j>n_games):
+                    finished=True
 
     if load_checkpoint:
     	agent.save_models()

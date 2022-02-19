@@ -67,7 +67,7 @@ class DDQNAgent(object):
 
         return states, actions, rewards, states_, dones
 
-    def choose_action(self, observation):
+    def choose_action(self, observation,pretrain=True):
         if np.random.random() > self.epsilon:
             state = observation.clone().to(self.q_eval.device)
             actions = self.q_eval.forward(state)
@@ -75,7 +75,10 @@ class DDQNAgent(object):
             action = T.argmax(actions).item()
 
         else:
-            action = np.random.choice(self.action_space)
+            if(pretrain):
+                action = np.random.choice(self.action_space)
+            elif(pretrain==False):
+                action = np.random.choice(self.action_space[:-1])
 
         return action
     
