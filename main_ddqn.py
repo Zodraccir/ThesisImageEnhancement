@@ -122,7 +122,7 @@ if __name__ == '__main__':
             #print("State_ mean: ",str(state_.mean())+ " std ",str(state_.std()) + "action done: ",action)
             observation_, reward, done, info = env.step(action)
 
-            print("State +1 mean: ",str(observation_.mean())+ " std ",str(observation_.std()) + "reward done: ",reward,"action taken", action)
+            #print("State +1 mean: ",str(observation_.mean())+ " std ",str(observation_.std()) + "reward done: ",reward,"action taken", action)
             score += reward
 
             agent.store_transition(state_.cpu(), action,reward, observation_, int(done))
