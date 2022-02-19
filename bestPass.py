@@ -75,8 +75,8 @@ if __name__ == '__main__':
         done = False
 
 
-        #file = i
-        file=img_list[7]
+        file = i
+        #file=img_list[7]
         raw = Image.open(path_training_image + file)
         target = Image.open(path_expert_image + file)
 

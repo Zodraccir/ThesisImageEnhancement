@@ -94,8 +94,8 @@ if __name__ == '__main__':
         i = i + 1
 
         #print(".......... EPISODE "+str(i)+" --------------")
-        #file=random.choice(img_list)
-        file = img_list[7]
+        file=random.choice(img_list)
+        #file = img_list[7]
 
         raw = Image.open(path_training_image+file)
         target = Image.open(path_expert_image+file)
